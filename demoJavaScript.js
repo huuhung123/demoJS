@@ -644,6 +644,115 @@ CALLBACK HELL (nested if)
 PROMISE- constructor function(Promise) - npm install promise-fs
 Cài module promise
 Promise có sẵn trong javasript, giúp viết code bất đồng bộ dễ dàng hơn. Sức mạnh của promise chính là khả năng nối các tác vụ bất đồng bộ và trả về kết quả theo mong muốn.
+Tao hàm -> trả về promise -> gọi resolve, reject
+Cách dùng: then và catch
+}
+var fs = require('fs')
+
+function readFilePromise(path) {
+  return new Promise((resolve, reject) => {
+    fs.readFile(path, {encoding: 'utf8'}, (err, data) => {
+      if(err) {
+        reject(err)
+      }
+      else {
+        resolve(data)
+      }
+    })
+  })
+}
+
+readFilePromise('song1.txt')
+  .then(song1 => {console.log(song1); return readFilePromise('song2.txt')  })
+  .then(song2 => console.log(song2))
+  .catch(error => console.log(error))
+
+async function run() {
+  var song1 = await readFilePromise('./song1.txt');
+  var song2 = await readFilePromise('./song2.txt');
+  return [song1, song2]
+}
+run().then(values => console.log(values))
+
+Promise.all([ rút gọn promise, k cần chú ý đến thứ tự chạy
+  readFilePromise('./song1.txt),
+  readFilePromise('./song2.txt),
+  readFilePromise('./song3.txt)
+])
+  .then(values => console.log(values))
+  .catch(err => console.log(err))
+
+
+Tạo 1 hàm return promise
+
+let add = (a, b) => {
+  return new Promise(resolve, reject) {
+    setTimeout(()=>{
+       if( typeOf a !='number' || typeOf b !='number') {
+       return reject(new Error('Tham so kp kieu number'))
+         }  
+       resolve(a+ b)
+      },2000)
+    }
+}
+
+add(3, 4)
+  .then(res => add(res, 7))
+  .then(res => console.log(res))
+  .catch(err => console.log('Loi:' + err))
+
+let tinhDientich = (a, b, h) => {
+add(a, b)
+  .then(res => multiply(res ,h))
+  .then(result => divide(result, 2))
+  .then(square => console.log('Dien tich hinh thang = ' + square))
+  .catch(err => console.log('Loi' + err)) 
+} -> tinhDientich(1, 2, 3)
+
+let tinhDientich = (a, b, h) => {
+add(a, b)
+  .then(res => multiply(res ,h))
+  .then(result => divide(result, 2))
+}
+tinhDientich(1, 2, 3)
+  .then(square => console.log('Dien tich hinh thang = ' + square))
+  .catch(err => console.log('Loi' + err)) 
+
+- Browser(PromiseStatus, PromiseValue)
+- Promise.resolve(gt hoặc Promise), .reject('Bi loi') -> handle (đều return về Promise)
+- Promise.all([add(4, 5), multiply(4, 5)])//ko phụ thuộc thứ tự
+  .then(res => console.log(res)) // [9, 20] //.then([add, multiply] => {console.log(add) console.log(multiply)}
+  .catch(err => console.log(err)) //promise nào bị reject đầu tiên, race thì resolve/reject của kq đầu tiên(phụ thuộc thứ tự)
+
+- Async/await
+
+let add = async() => {
+  let res = await addPr(4, 5);
+  console.log(res)
+}
+
+add()   // 9, dừng hết lại, chờ addPr rồi gán res
+<==>
+
+let add = async() => {
+  let res = addPr(4, 5);
+  console.log(res) // Promise{<pending>}
+}
+
+let tinhDientich = async (a, b, h) => {
+  try { 
+  let ab = await add(a, b);
+  let abh = await multiply(ab, h)
+  let square = await divide(abh, 2)
+  return Promise.resolve(square)
+  } catch (e) {
+   return Promise. reject(e)	
+  } 
+}
+tinhDientich(2, 4, 6)
+ .then(res => console.log(res))
+ .catch(err => console.log(err + '')) Handle lỗi -> try catch
+
 */
 
 /*
